@@ -1,32 +1,12 @@
 # advent-of-code-2020
 
-FIXME: description
-
-## Installation
-
-Download from http://example.com/FIXME.
+My solutions to Advent of Code 2020. Each file is a separate program.
 
 ## Usage
 
-FIXME: explanation
+Use lein to run a given namespace
 
-    $ java -jar advent-of-code-2020-0.1.0-standalone.jar [args]
-
-## Options
-
-FIXME: listing of options this app accepts.
-
-## Examples
-
-...
-
-### Bugs
-
-...
-
-### Any Other Sections
-### That You Think
-### Might be Useful
+    $ lein run -m advent-of-code-2020.day01
 
 ## License
 
