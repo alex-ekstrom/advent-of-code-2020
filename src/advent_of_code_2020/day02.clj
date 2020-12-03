@@ -9,7 +9,7 @@
        (map #(vector (Integer/parseInt (nth % 1)) (Integer/parseInt (nth % 2)) (nth (nth % 3) 0) (nth % 4)))))
 
 (defn- get-valid-count-passwords [inputs start]
-  (if (= 0 (count inputs))
+  (if (empty? inputs)
     start
     (let [[min max letter pass]  (first inputs)
           total                  (get (frequencies pass) letter 0)]
@@ -18,7 +18,7 @@
        (recur (rest inputs) start))))) 
 
 (defn- get-valid-pos-passwords [inputs start]
-  (if (= 0 (count inputs))
+  (if (empty? inputs)
     start
     (let [[first second letter pass]  (first inputs)
           first  (dec first)
