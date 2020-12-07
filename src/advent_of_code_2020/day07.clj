@@ -23,13 +23,6 @@
       (count)
       (dec)))
 
-(defn- get-cost [graph start end]
-  (->> (alg/shortest-path graph {:start-node start
-                                 :end-node end})
-       (alg/edges-in-path)
-       (map #(uber/attr graph % :amount))
-       (reduce *)))
-
 (defn- count-bags [graph start]
   (if (> (uber/out-degree graph start) 0)
     (->> (uber/out-edges graph start)
