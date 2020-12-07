@@ -24,11 +24,9 @@
       (dec)))
 
 (defn- count-bags [graph start]
-  (if (> (uber/out-degree graph start) 0)
-    (->> (uber/out-edges graph start)
-         (map #(+ (uber/attr graph % :amount) (* (uber/attr graph % :amount) (count-bags graph (uber/dest %)))))
-         (reduce +))
-    0))
+  (->> (uber/out-edges graph start)
+       (map #(+ (uber/attr graph % :amount) (* (uber/attr graph % :amount) (count-bags graph (uber/dest %)))))
+       (reduce +)))
 
 (defn- get-sub-total [graph start]
   (-> (uber/transpose graph)
