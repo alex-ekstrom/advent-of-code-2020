@@ -45,11 +45,11 @@
        (vec)))
 
 (defn- find-stale [current max-dist adj-seats]
-  (loop [state current times 0]
+  (loop [state current]
     (let [next (get-next-phase state max-dist adj-seats)]
       (if (= state next)
         (get (frequencies (flatten state)) \#)
-        (recur next (inc times))))))
+        (recur next)))))
 
 (defn -main []
   (let [file-values (load-resource-file)]
