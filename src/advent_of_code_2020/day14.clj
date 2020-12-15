@@ -13,7 +13,6 @@
        :inv (Long/parseLong (str/replace (str/replace value #"\d" "0") #"X" "1") 2)
        :dinv (Long/parseLong (str/replace (str/replace value #"\d" "1") #"X" "0") 2)})
     (let [[_ address value] (re-find (re-matcher #"mem\[(\d+)\] = (.*)" line))]
-      (prn address (Long/Long/toBinaryString (Long/parseLong address)))
       {:inst :set 
        :loc (Long/parseLong address) 
        :val (Long/parseLong value)})))
@@ -26,13 +25,13 @@
 (defn- apply-value-mask [value mask inv]
   (bit-or mask (bit-and value inv)))
 
+(defn- run-instruct-val [[mem mask inv] inst]
+  (case (:inst inst)
+    :mask [mem (:mask inst) (:inv inst)]
+    :set [(assoc mem (:loc inst) (apply-value-mask (:val inst) mask inv)) mask inv]))
+
 (defn- run-program-val [instructions]
-  (loop [instruction instructions mem {} mask 0 inv 0]
-    (if-let [[inst & rest] instruction]
-      (case (:inst inst)
-        :mask (recur rest mem (:mask inst) (:inv inst))
-        :set (recur rest (assoc mem (:loc inst) (apply-value-mask (:val inst) mask inv)) mask inv))
-      (transduce (map val) + mem))))
+  (apply + (vals (first (reduce run-instruct-val [{} 0 0 0 ""] instructions)))))
 
 (defn- apply-mem-mask [mem loc value mask inv floating]
   (let [mval (bit-or loc mask)
@@ -42,13 +41,13 @@
                   (apply-value-mask mval (Long/parseLong (reduce #(str/replace-first %1 "X" %2) floating perm) 2) inv))]
     (transduce (map #(hash-map % value)) conj mem addrs)))
 
+(defn- run-instruct-mem [[mem mask inv x] inst]
+  (case (:inst inst)
+    :mask [mem (:mask inst) (:dinv inst) (:x inst)]
+    :set [(apply-mem-mask mem (:loc inst) (:val inst) mask inv x) mask inv x]))
+
 (defn- run-program-mem [instructions]
-  (loop [instruction instructions mem {} x "" mask 0 inv 0]
-    (if-let [[inst & rest] instruction]
-      (case (:inst inst)
-        :mask (recur rest mem (:x inst) (:mask inst) (:dinv inst))
-        :set (recur rest (apply-mem-mask mem (:loc inst) (:val inst) mask inv x) x mask inv))
-      (transduce (map val) + mem))))
+  (apply + (vals (first (reduce run-instruct-mem [{} 0 0 0 ""] instructions)))))
 
 (defn -main []
   (let [file-values (load-resource-file)]
