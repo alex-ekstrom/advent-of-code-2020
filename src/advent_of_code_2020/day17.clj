@@ -15,20 +15,13 @@
        (map #(reduce conj %))
        (reduce conj)))
 
-(defn- get-neighbor-coords-4 [coord]
-  (let [cube (for [x '(-1 0 1)
-                   y '(-1 0 1)
-                   z '(-1 0 1)
-                   w '(-1 0 1)]
-               [(+ x (nth coord 0)) (+ y (nth coord 1)) (+ z (nth coord 2)) (+ w (nth coord 3))])]
-    (remove #{coord} cube)))
+(defn- get-neighbor-coords-4 [[x y z w]]
+  (for [dx [-1 0 1] dy [-1 0 1] dz [-1 0 1] dw [-1 0 1]
+        :when (not (every? zero? [dz dy dx dw]))]
+    [(+ x dx) (+ y dy) (+ z dz) (+ w dw)]))
 
-(defn- get-neighbor-coords-3 [coord]
-  (let [cube (for [x '(-1 0 1)
-                   y '(-1 0 1)
-                   z '(-1 0 1)]
-               [(+ x (nth coord 0)) (+ y (nth coord 1)) (+ z (nth coord 2)) 0])]
-    (remove #{coord} cube)))
+(defn- get-neighbor-coords-3 [coords]
+  (filter (fn [[_ _ _ w]] (zero? w)) (get-neighbor-coords-4 coords)))
 
 (defn- get-neighbors [coord active? coords finder]
   (filter #(= active? (get coords % 0)) (finder coord)))
@@ -41,9 +34,7 @@
         coords2 (reduce dissoc coords deactive)]
     (reduce #(assoc %1 %2 1) coords2 activate)))
 
-(def test-data [".#."
-               "..#"
-               "###"])
+(def test-data [".#." "..#" "###"])
 
 (defn -main []
   (let [test-data (parse test-data)
